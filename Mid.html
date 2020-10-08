@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mid</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin=""/>
+
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+
+        <style type="text/css">
+          html, body { margin: 0; padding: 0; height: 100%; }
+          #map { min-height: 100%; }
+
+            /* Optional: adjust the values below to change the appearance of the legend */
+            .legend {
+                padding: 6px 8px;
+                line-height: 18px;
+                background: rgba(255,255,255,0.9);
+                box-shadow: 0 0 15px rgba(0,0,0,0.2);
+                border-radius: 5px;
+            }
+
+             /* Optional: adjust the values below to change the appearance of the legend color boxes */
+             .legend i {
+                width: 18px;
+                height: 18px;
+                float: left;
+                margin-right: 8px;
+                opacity: 0.7;
+            }
+
+        </style>
+
+        <script type="text/javascript" src="data.js"></script>,
+        <script type="text/javascript" src="state.js"></script>
+
+    </head>
+
+    <body>
+        <div id="Mid" style="height: 800px"></div>
+
+        <script type="text/javascript">
+            var map = L.map('Mid', {
+            center: [38.1625228, -96.9633171],
+            zoom: 5
+
+        });
+var canvas = L.tileLayer('http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg', {
+            attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.',
+            maxZoom: 10,
+            minZoom: 4
+        }).addTo(map);
+
+
+          function getColor(value) {
+             return value > 15 ? '#54278f':
+                    value > 12  ? '#756bb1':
+                    value > 0 ? '#9e9ac8':
+                    '#cbc9e2';
+
+         }
+
+         function style(feature){
+             return {
+                 fillColor: getColor(feature.properties.per_aging),
+                 weight: 2,
+                 opacity: 1,
+                 color: 'gray',
+                 fillOpacity: 0.9
+             };
+          }
+
+          var data = L.geoJson(data, {style:style}).addTo(map);
+          var state = L.geoJson(state, {style:style}).addTo(map);
+
+
+
+          var legend = L.control({position: 'bottomright'}); // Try the other three corners if you like.
+
+            legend.onAdd = function (map) {
+
+                var div = L.DomUtil.create('div', 'legend'),
+                    grades = [0, 9, 12,15]; // The break values to define the intervals of population, note we begin from 0 here
+
+                div.innerHTML = '<b>65 & older<br> 2020<br></b>'; // The legend title (HTML-based), in this case it's Population Density 2011
+
+                // Loop through our the classes and generate a label with a color box for each interval.
+                // If you are creating a choropleth map, you DO NOT need to change lines below.
+                for (var i = 0; i < grades.length; i++) {
+                    div.innerHTML +=
+                    '<i style="background:' + getColor(grades[i] + 1) + '"></i>' +
+                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                }
+
+                return div;
+            };
+
+            legend.addTo(map);
+            var basemaps = {
+    "Light Canvas": canvas,
+
+};
+
+var overlaymaps = {
+    "Percentage 65 & Up by Co.": data,
+"Percentage 65 & Up by State": state,
+
+
+
+
+    };
+L.control.layers(basemaps, overlaymaps).addTo(map);
+
+        </script>
+
+    </body>
+</html>
